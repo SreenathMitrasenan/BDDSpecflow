@@ -1,0 +1,84 @@
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+
+namespace eCV2.regression.Ui.test.Utilities
+{
+    class FsoHelper
+    {
+        public static string GetApplicationRootDirectory()
+        {
+            //var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var path2 = AppDomain.CurrentDomain.BaseDirectory;
+            return path2;
+        }
+
+        public JObject ReadJsonFile(string jsonTextFilePath)
+        {
+            return Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(jsonTextFilePath));
+        }
+        public string GetConfigFilePath()
+        {
+            return Path.Combine(GetApplicationRootDirectory(), "Configuration", "AppConfig.json");
+        }
+
+        public string GetConfigurationPath()
+        {
+            return Path.Combine(GetApplicationRootDirectory(), "Configuration");
+        }
+
+
+        public Dictionary<string, string> MapJsonToDictionary(string jsonTextFilePath, string token)
+        {
+            return JObject.Parse(File.ReadAllText(jsonTextFilePath)).SelectToken(token).ToObject<Dictionary<string, string>>();
+        }
+
+        public string GetAppUrl()
+        {
+            string appUrl = ReadJsonFile(GetConfigFilePath()).SelectToken("url").SelectToken("ecv").ToString().Trim();
+            return appUrl;
+        }
+        public string GetGoldUsername()
+        {
+            string appUname = ReadJsonFile(GetConfigFilePath()).SelectToken("gold").SelectToken("usernameg").ToString().Trim();
+            return appUname;
+        }
+        public string GetSilverUsername()
+        {
+            string appUname = ReadJsonFile(GetConfigFilePath()).SelectToken("silver").SelectToken("usernames").ToString().Trim();
+            return appUname;
+        }
+        public string GetBronzeUsername()
+        {
+            string appUname = ReadJsonFile(GetConfigFilePath()).SelectToken("bronze").SelectToken("usernameb").ToString().Trim();
+            return appUname;
+        }
+        public string GetBronzePassword()
+        {
+            string appPwd = ReadJsonFile(GetConfigFilePath()).SelectToken("bronze").SelectToken("passwordb").ToString().Trim();
+            return appPwd;
+        }
+        public string GetSilverPassword()
+        {
+            string appPwd = ReadJsonFile(GetConfigFilePath()).SelectToken("silver").SelectToken("passwords").ToString().Trim();
+            return appPwd;
+        }
+        public string GetGoldPassword()
+        {
+            string appPwd = ReadJsonFile(GetConfigFilePath()).SelectToken("gold").SelectToken("passwordg").ToString().Trim();
+            return appPwd;
+        }
+        public string GetTemplate(string jsonFileName)
+        {
+            return Path.Combine(GetApplicationRootDirectory(), "Templates", jsonFileName);
+        }
+
+        public JObject GetJson(string jsonFileName)
+        {
+            JObject jsonBody = ReadJsonFile(GetTemplate(jsonFileName));
+            return jsonBody;
+        }
+    }
+}

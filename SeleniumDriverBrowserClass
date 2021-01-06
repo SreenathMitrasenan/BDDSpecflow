@@ -1,0 +1,241 @@
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Edge;
+using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.IE;
+using OpenQA.Selenium.Remote;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace eCV2.regression.Ui.test.Utilities
+{
+    public class SeleniumContext_temp
+    {
+        [Obsolete]
+        public SeleniumContext_temp(BrowserType browserType, String DriverPath, [Optional] String NodeUrl)
+        {
+            DesiredCapabilities BS_capability = new DesiredCapabilities();
+            switch (browserType)
+            {
+
+                case BrowserType.CHROME:
+
+                    var chromeoptions = new ChromeOptions();
+
+                    chromeoptions.AddAdditionalCapability(CapabilityType.AcceptSslCertificates, true, true);
+
+                    chromeoptions.AddArgument("ignore-certificate-errors");
+
+                    WebDriver = new ChromeDriver(DriverPath, chromeoptions);
+
+                    break;
+
+                case BrowserType.CHROMEHEADLESS:
+
+                    ChromeOptions option = new ChromeOptions();
+
+                    option.AddAdditionalCapability("browser", "Chrome", true);
+
+                    option.AcceptInsecureCertificates = true;
+
+                    option.AddArgument("--headless");
+
+                    WebDriver = new ChromeDriver(DriverPath, option);
+
+                    break;
+
+                case BrowserType.FIREFOX:
+
+                    FirefoxDriverService service = FirefoxDriverService.CreateDefaultService(DriverPath, "geckodriver.exe");
+
+                    service.FirefoxBinaryPath = @"C:\Program Files\Mozilla Firefox\firefox.exe";
+
+                    service.HideCommandPromptWindow = true;
+
+                    service.SuppressInitialDiagnosticInformation = true;
+
+                    WebDriver = new FirefoxDriver(service);
+
+                    break;
+
+                case BrowserType.RM_IE:
+
+                    InternetExplorerOptions Options = new InternetExplorerOptions();
+
+                    Options.AddAdditionalCapability(CapabilityType.AcceptInsecureCertificates, true);
+
+                    WebDriver = new RemoteWebDriver(new Uri(NodeUrl), Options);
+
+                    break;
+
+                case BrowserType.RM_EDGE:
+
+                    EdgeOptions edgOptions = new EdgeOptions();
+
+                    edgOptions.AcceptInsecureCertificates = true;
+
+                    //edgOptions.AddAdditionalCapability(CapabilityType.AcceptInsecureCertificates, true);
+
+                    WebDriver = new RemoteWebDriver(new Uri(NodeUrl), edgOptions);
+
+                    break;
+
+                case BrowserType.RM_CHROME:
+
+                    ChromeOptions rm_chromeoptions = new ChromeOptions();
+
+                    rm_chromeoptions.AddArgument("ignore-certificate-errors");
+
+                    //rm_chromeoptions.AcceptInsecureCertificates = true;
+
+                    rm_chromeoptions.AddAdditionalCapability("browser", "Chrome", true);
+
+                    WebDriver = new RemoteWebDriver(new Uri(NodeUrl), rm_chromeoptions);
+
+                    break;
+
+                case BrowserType.RM_FIREFOX:
+
+                    FirefoxOptions rm_firefoxOptions = new FirefoxOptions();
+
+                    //rm_firefoxOptions.AcceptInsecureCertificates = true;
+
+                    rm_firefoxOptions.AddArgument("ignore-certificate-errors");
+
+                    WebDriver = new RemoteWebDriver(new Uri(NodeUrl), rm_firefoxOptions);
+
+                    break;
+
+                case BrowserType.RM_CHROMEHEADLESS:
+
+                    ChromeOptions rm_chromeheadless = new ChromeOptions();
+
+                    rm_chromeheadless.AcceptInsecureCertificates = true;
+
+                    rm_chromeheadless.AddArgument("--headless");
+
+                    rm_chromeheadless.AddAdditionalCapability("browser", "Chrome", true);
+
+                    WebDriver = new RemoteWebDriver(new Uri(NodeUrl), rm_chromeheadless);
+
+                    break;
+
+                case BrowserType.BS_CHROME:
+
+                                    
+                    BS_capability.SetCapability("browser", "Chrome");
+                    BS_capability.SetCapability("browser_version", "84");
+                    BS_capability.SetCapability("os", "Windows");
+                    BS_capability.SetCapability("os_version", "7");
+                    BS_capability.SetCapability("resolution", "1024x768");
+                    BS_capability.SetCapability("acceptSslCerts", "true");
+                    BS_capability.SetCapability("browserstack.local", "true");
+                    BS_capability.SetCapability("browserstack.user", "rahulvarmavalsar2");
+                    BS_capability.SetCapability("browserstack.key", "ChwLmQpqWD1ft1d52K3b");
+                    BS_capability.SetCapability("name", "CrossBrowserTest_Chrome");
+                    BS_capability.SetCapability("project", "ExperianHub");
+                    WebDriver = new RemoteWebDriver(new Uri("https://hub-cloud.browserstack.com/wd/hub/"), BS_capability);
+                    break;
+                case BrowserType.BS_SAFARI:
+
+                    
+
+                    BS_capability.SetCapability("browser", "safari");
+                    BS_capability.SetCapability("browser_version", "13");
+                    BS_capability.SetCapability("os", "OS X");
+                    BS_capability.SetCapability("os_version", "Catalina");
+                    BS_capability.SetCapability("resolution", "1024x768");
+                    BS_capability.SetCapability("acceptSslCerts", "true");
+                    BS_capability.SetCapability("browserstack.local", "true");
+                    BS_capability.SetCapability("browserstack.user", "rahulvarmavalsar2");
+                    BS_capability.SetCapability("browserstack.key", "ChwLmQpqWD1ft1d52K3b");
+                    BS_capability.SetCapability("name", "CrossBrowserTest_SAFARI");
+                    BS_capability.SetCapability("project", "ExperianHub");
+                    BS_capability.SetCapability("autoAcceptAlerts", "true");
+                    WebDriver = new RemoteWebDriver(new Uri("https://hub-cloud.browserstack.com/wd/hub/"), BS_capability);
+                    break;
+                case BrowserType.BS_IE:
+
+
+                    BS_capability.SetCapability("browser", "IE");
+                    BS_capability.SetCapability("browser_version", "11");
+                    BS_capability.SetCapability("os", "Windows");
+                    BS_capability.SetCapability("os_version", "7");
+                    BS_capability.SetCapability("resolution", "1024x768");
+                    BS_capability.SetCapability("acceptSslCerts", "true");
+                    BS_capability.SetCapability("browserstack.local", "true");
+                    BS_capability.SetCapability("browserstack.user", "rahulvarmavalsar2");
+                    BS_capability.SetCapability("browserstack.key", "ChwLmQpqWD1ft1d52K3b");
+                    BS_capability.SetCapability("name", "CrossBrowserTest_IE");
+                    BS_capability.SetCapability("project", "ExperianHub");
+                    WebDriver = new RemoteWebDriver(new Uri("https://hub-cloud.browserstack.com/wd/hub/"), BS_capability);
+                    break;
+                case BrowserType.BS_EDGE:
+
+
+                    BS_capability.SetCapability("browser", "EDGE");
+                    BS_capability.SetCapability("browser_version", "84");
+                    BS_capability.SetCapability("os", "Windows");
+                    BS_capability.SetCapability("os_version", "10");
+                    BS_capability.SetCapability("resolution", "1024x768");
+                    BS_capability.SetCapability("acceptSslCerts", "true");
+                    BS_capability.SetCapability("browserstack.local", "true");
+                    BS_capability.SetCapability("browserstack.user", "rahulvarmavalsar2");
+                    BS_capability.SetCapability("browserstack.key", "ChwLmQpqWD1ft1d52K3b");
+                    BS_capability.SetCapability("name", "CrossBrowserTest_EDGE");
+                    BS_capability.SetCapability("project", "ExperianHub");
+                    WebDriver = new RemoteWebDriver(new Uri("https://hub-cloud.browserstack.com/wd/hub/"), BS_capability);
+                    break;
+                case BrowserType.BS_FIREFOX:
+
+
+                    BS_capability.SetCapability("browser", "FIREFOX");
+                    BS_capability.SetCapability("browser_version", "80");
+                    BS_capability.SetCapability("os", "Windows");
+                    BS_capability.SetCapability("os_version", "10");
+                    BS_capability.SetCapability("resolution", "1024x768");
+                    BS_capability.SetCapability("acceptSslCerts", "true");
+                    BS_capability.SetCapability("browserstack.local", "true");
+                    BS_capability.SetCapability("browserstack.user", "rahulvarmavalsar2");
+                    BS_capability.SetCapability("browserstack.key", "ChwLmQpqWD1ft1d52K3b");
+                    BS_capability.SetCapability("name", "CrossBrowserTest_FIREFOX");
+                    BS_capability.SetCapability("project", "ExperianHub");
+                    WebDriver = new RemoteWebDriver(new Uri("https://hub-cloud.browserstack.com/wd/hub/"), BS_capability);
+                    break;
+
+                default:
+                    WebDriver = new ChromeDriver(DriverPath);
+
+                    break;
+            }
+
+
+            WebDriver.Manage().Window.Maximize();
+
+        }
+
+        public enum BrowserType
+        {
+            CHROME,
+            CHROMEHEADLESS,
+            FIREFOX,
+            RM_CHROME,
+            RM_EDGE,
+            RM_IE,
+            RM_FIREFOX,
+            RM_CHROMEHEADLESS,
+            BS_CHROME,
+            BS_SAFARI,
+            BS_IE,
+            BS_EDGE,
+            BS_FIREFOX
+        }
+        //public IWebDriver WebDriver { get; private set; }
+        public RemoteWebDriver WebDriver { get; private set; }
+    }
+}

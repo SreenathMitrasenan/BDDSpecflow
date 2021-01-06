@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace eCV2.regression.Ui.test.Utilities
+{
+    //Class Name        : RunTimeData
+    //Description       : This class acts as a storage area where we can store & retrive string data at will  .
+    //Created By        : Sreenath Mitrasenan
+    //Created Date      : 12/29/2020
+    //Purpose created   : To store & retrive string data types on runtime
+    //Example           : Store data "abc" with a key "test", RunTimeData.GetInstance.Set("test","abc") , Get data abc= RunTimeData.GetInstance.Get("test")
+    //Comments          : Currently not thread safe
+    public class RunTimeData
+    {
+        public Dictionary<string, string> oDict = new Dictionary<string, string>();
+        
+        private RunTimeData() { }
+        private static RunTimeData _instance;
+        public static RunTimeData GetInstance()
+        {
+            if (_instance == null)
+            {
+                _instance = new RunTimeData();
+            }
+            return _instance;
+        }
+
+        public void Set(string id, string val)
+        {
+            oDict.Add(id, val);
+        }
+
+        public string Get(string id)
+        {
+            return oDict[id].ToString();
+        }
+
+        public void ClearAllData()
+        {
+            oDict.Clear();
+        }
+       
+    }
+}

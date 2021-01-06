@@ -1,0 +1,144 @@
+using System;
+using System.Collections.Generic;
+using OpenQA.Selenium;
+
+namespace eCV2.regression.Ui.test.Utilities
+{
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class WebFunctions
+    {
+
+        private static int returnRow;
+        public static string DropDownValueCheck(IWebElement dropDownElement, string dropDownValueCheck)
+        {
+            if (dropDownElement.Text.Contains(dropDownValueCheck))
+            {
+                return dropDownValueCheck;
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        public static Func<IWebDriver, bool> ElementIsVisible(IWebElement element)
+        {
+            return (driver) =>
+            {
+                try
+                {
+                    return element.Displayed;
+                }
+                catch (Exception)
+                {
+                    // If element is null, stale or if it cannot be located
+                    return false;
+                }
+            };
+        }
+
+        public static int RowIndexFromTable(IWebElement sourceDatatable, string lookupValue)
+        {
+            IList<IWebElement> tableRow = sourceDatatable.FindElements(By.TagName("tr"));
+
+            var ticker = 0;
+
+            Boolean check = false;
+
+            foreach (IWebElement row in tableRow)
+            {
+                IList<IWebElement> rowTd = row.FindElements(By.TagName("td"));
+
+                if (rowTd.Count > 0)
+                {
+                    if (rowTd[0].Text == lookupValue)
+                    {
+                        check = true;
+                        break;
+
+                    }
+                }
+
+                ticker++;
+            }
+
+            if (check == false) ticker = 0;
+
+            return ticker;
+
+        }
+
+
+        public static int SearchInDataTable(IWebElement sourceDatatable, string lookupValue, int columnToLookFor)
+        {
+
+            int ticker = 0;
+
+            ICollection<IWebElement> allElement = sourceDatatable.FindElements(By.TagName("tr"));
+
+            foreach (IWebElement elementRows in allElement)
+            {
+                ICollection<IWebElement> elementData = elementRows.FindElements(By.TagName("td"));
+
+                if (elementData.Count != 0) ticker += 1;
+
+                foreach (IWebElement elements in elementData)
+
+                {
+
+                    IWebElement lookupData = elements.FindElement(By.XPath("//tr[" + ticker + "]//td[" + columnToLookFor + "]"));
+
+
+                    if (lookupData.Text.ToUpper() == lookupValue.ToUpper())
+                    {
+                        returnRow = ticker;
+
+                        break;
+                    }
+                }
+
+                if (returnRow != 0) break;
+
+            }
+
+            return returnRow;
+        }
+
+        public static bool IsElementVisible(IWebElement element)
+        {
+            return element.Displayed && element.Enabled;
+        }
+
+        public static void HighlightElement(IWebElement element, IWebDriver driver, bool hightlightStatus)
+        {
+            string highlightJavascript = @"$(arguments[0]).css({ ""border-width"" : """", ""border-style"" : """", ""border-color"" : """"});";
+
+            var jsDriver = (IJavaScriptExecutor)driver;
+
+            if (hightlightStatus == true){ highlightJavascript = @"$(arguments[0]).css({ ""border-width"" : ""2px"", ""border-style"" : ""solid"", ""border-color"" : ""red""});"; }
+            
+            jsDriver.ExecuteScript(highlightJavascript, new object[] { element });
+        }
+        public static string VerifyText(IWebElement element, string textvalue)
+        {
+            if (element.Text.Contains(textvalue))
+            {
+                return textvalue;
+            }
+            else
+            {
+                return "";
+            }
+        }
+        public static void ScrollDown(IWebDriver driver)
+        {
+            var jsDriver = (IJavaScriptExecutor)driver;
+            jsDriver.ExecuteScript("window.scrollBy(0,500)");
+        }
+        public static void ScrollDownfullpage(IWebDriver driver)
+        {
+            var jsDriver = (IJavaScriptExecutor)driver;
+            jsDriver.ExecuteScript("window.scrollBy(0,1400)");
+        }
+    }
+}

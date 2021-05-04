@@ -1,0 +1,115 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TechTalk.SpecFlow;
+using AventStack.ExtentReports;
+using AventStack.ExtentReports.Reporter;
+using AventStack.ExtentReports.Gherkin.Model;
+using BoDi;
+using System.Reflection;
+using AventStack.ExtentReports.Reporter.Configuration;
+
+namespace Experian.UK.Boost.Integration.Tests.Functional.Helper
+{
+    [Binding]
+    class ReportHelper
+    {
+        private static ExtentTest featureName;
+        private static ExtentTest scenario;
+        //private static ExtentReports extent;
+        public static AventStack.ExtentReports.ExtentReports extent;
+        private readonly IObjectContainer objectContainer;
+        private readonly FeatureContext featureContext;
+        private ScenarioContext scenarioContext;
+
+        //private static string environment = "Default";
+
+        public ReportHelper(IObjectContainer objectContainer, FeatureContext _featurecontext, ScenarioContext _scenariocontext)
+        {
+            this.objectContainer = objectContainer;
+            this.featureContext = _featurecontext;
+            this.scenarioContext = _scenariocontext;
+        }
+
+        [BeforeTestRun]
+        public static void InitializeReport()
+        {
+            FsoHelper fileSystemService = new FsoHelper();
+            string reportPath = fileSystemService.GetApplicationTestResultsDirectory() + "index.html";
+            var htmlReporter = new ExtentHtmlReporter(reportPath);
+            htmlReporter.Config.Theme = Theme.Dark;
+            //Set Environment in Report
+            //string configFilePath = fileSystemService.GetConfigFilePath();
+            //environment = fileSystemService.ReadJsonFile(configFilePath).SelectToken("url").SelectToken("environment").ToString().Trim();
+            //extent.AddSystemInfo("Execution Environment", environment);
+            //Set Document Title
+            htmlReporter.Config.DocumentTitle = "Score Boost";
+            htmlReporter.Config.ReportName = "Score Boost Test Automation Report";
+            //Attach report to reporter
+            extent = new AventStack.ExtentReports.ExtentReports();
+            extent.AttachReporter(htmlReporter);
+        }
+
+        [AfterTestRun]
+        public static void TearDownReport()
+        {
+            //Flush report once test completes
+            extent.Flush();
+        }
+
+        [BeforeFeature]
+        public static void BeforeFeature(FeatureContext featureContext)
+        {
+            //Create dynamic feature name
+            featureName = extent.CreateTest<Feature>(featureContext.FeatureInfo.Title);
+        }
+
+        [AfterStep]
+        public void InsertReportingSteps(ScenarioContext scenariocontext)
+        {
+            this.scenarioContext = scenariocontext;
+            var stepType = ScenarioStepContext.Current.StepInfo.StepDefinitionType.ToString();
+            //Retrive TestStatus from Nunit Provider
+            //PropertyInfo pInfo = typeof(ScenarioContext).GetProperty("TestStatus", BindingFlags.Instance | BindingFlags.NonPublic);
+            //MethodInfo getter = pInfo.GetGetMethod(nonPublic: true);
+            //object TestResult = getter.Invoke(ScenarioContext.Current, null);
+
+            if (scenarioContext.TestError == null)
+            {
+                if (stepType == "Given")
+                    scenario.CreateNode<Given>("Given " + ScenarioStepContext.Current.StepInfo.Text);
+                else if (stepType == "When")
+                    scenario.CreateNode<When>("When " + ScenarioStepContext.Current.StepInfo.Text);
+                else if (stepType == "Then")
+                    scenario.CreateNode<Then>("Then " + ScenarioStepContext.Current.StepInfo.Text);
+                else if (stepType == "And")
+                    scenario.CreateNode<And>("And " + ScenarioStepContext.Current.StepInfo.Text);
+            }
+            else if (scenarioContext.TestError != null)
+            {
+                if (stepType == "Given")
+                    scenario.CreateNode<Given>("Given " + ScenarioStepContext.Current.StepInfo.Text).Fail(scenarioContext.TestError.InnerException);
+                else if (stepType == "When")
+                    scenario.CreateNode<When>("When " + ScenarioStepContext.Current.StepInfo.Text).Fail(scenarioContext.TestError.InnerException);
+                else if (stepType == "Then")
+                    scenario.CreateNode<Then>("Then " + ScenarioStepContext.Current.StepInfo.Text).Fail(scenarioContext.TestError.Message);
+            }
+
+        }
+
+        [BeforeScenario]
+        public void Initialize(ScenarioContext scenariocontext)
+        {
+            //Create dynamic scenario name
+            scenario = featureName.CreateNode<Scenario>(scenariocontext.ScenarioInfo.Title);
+        }
+
+        [AfterScenario]
+        public void CleanUp()
+        {
+            // _driver.Quit();
+        }
+    }
+}

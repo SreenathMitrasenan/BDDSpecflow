@@ -1,0 +1,155 @@
+using AventStack.ExtentReports;
+using AventStack.ExtentReports.Gherkin.Model;
+using AventStack.ExtentReports.Reporter;
+using AventStack.ExtentReports.Reporter.Configuration;
+using BoDi;
+using EvaluatePlusTest.Utilities;
+using OpenQA.Selenium;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using TechTalk.SpecFlow;
+
+namespace EvaluatePlusTest.Hooks
+{
+    [Binding]
+    public sealed class Hooks
+
+    {
+        private static ExtentTest featureName;
+        private static ExtentTest scenario;
+        private static string stepStatus;
+        private static string stepComment;
+        public static AventStack.ExtentReports.ExtentReports extent;
+        private readonly IObjectContainer objectContainer;
+        private readonly FeatureContext featureContext;
+        private ScenarioContext scenarioContext;
+        private IWebDriver driver;
+        private  FsoHelper fUtil;
+        
+        public Hooks(IObjectContainer objectContainer, FeatureContext featurecontext, ScenarioContext scenariocontext)
+        {
+            this.objectContainer = objectContainer;
+            this.featureContext = featurecontext;
+            this.scenarioContext = scenariocontext;
+        }
+
+        [BeforeTestRun]
+        public static void InitializeReport()
+        {
+            FsoHelper fUtil = new FsoHelper();
+            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory.Replace($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}Debug{Path.DirectorySeparatorChar}netcoreapp2.2", "");
+            string reportPath = fUtil.GetHtmlReportPath() + $"\\ExtentReport.html";
+            var htmlReporter = new ExtentV3HtmlReporter(reportPath);
+            htmlReporter.Config.Theme = AventStack.ExtentReports.Reporter.Configuration.Theme.Dark;
+      
+
+            //Set Document Title
+            htmlReporter.Config.DocumentTitle = "Evaluate Plus";
+            htmlReporter.Config.ReportName = "Automation Test Report";
+            //Attach report to reporter
+            extent = new AventStack.ExtentReports.ExtentReports();
+            extent.AttachReporter(htmlReporter);
+
+        }
+
+        [AfterTestRun]
+        public static void TearDownReport()
+        {
+            extent.Flush();
+        }
+
+        [BeforeFeature]
+        public static void BeforeFeature(FeatureContext featureContext)
+        {
+            //Create dynamic feature name
+            featureName = extent.CreateTest<Feature>(featureContext.FeatureInfo.Title);
+
+            featureName = extent.CreateTest<Feature>(featureContext.FeatureInfo.Title);
+            string[] featureTags = featureContext.FeatureInfo.Tags.Select(s => s.ToUpperInvariant()).ToArray();
+            if (featureTags.Contains("IGNORE")) featureName.Skip("Skipped");
+        }
+
+      
+        [AfterStep]
+        public void InsertReportingSteps(ScenarioContext scenariocontext)
+        {
+            this.scenarioContext = scenariocontext;
+            var stepType = ScenarioStepContext.Current.StepInfo.StepDefinitionType.ToString();
+           // var screenshotAttachment = CaptureScreenshot.Capture(driver);
+
+
+
+            if (scenarioContext.TestError == null)
+            {
+                if (stepType == "Given")
+                    scenario.CreateNode<Given>("Given " + ScenarioStepContext.Current.StepInfo.Text);
+                else if (stepType == "When")
+                    scenario.CreateNode<When>("When " + ScenarioStepContext.Current.StepInfo.Text);
+                else if (stepType == "Then")
+                    scenario.CreateNode<Then>("Then " + ScenarioStepContext.Current.StepInfo.Text);
+                else if (stepType == "And")
+                    scenario.CreateNode<And>("And " + ScenarioStepContext.Current.StepInfo.Text);
+            }
+            else if (scenarioContext.TestError != null)
+            {
+               // TestStepFailed(stepType, screenshotAttachment);
+
+            }
+
+           
+
+        }
+
+
+
+        private void TestStepPassed(string stepType, string screenshotAttachment)
+        {
+            if (stepType == "Given")
+                scenario.CreateNode<Given>(stepType + ": " + scenarioContext.StepContext.StepInfo.Text).Pass("", MediaEntityBuilder.CreateScreenCaptureFromPath(screenshotAttachment).Build());
+            else if (stepType == "When")
+                scenario.CreateNode<When>(stepType + ": " + scenarioContext.StepContext.StepInfo.Text).Pass("", MediaEntityBuilder.CreateScreenCaptureFromPath(screenshotAttachment).Build());
+            else if (stepType == "Then")
+                scenario.CreateNode<Then>(stepType + ": " + scenarioContext.StepContext.StepInfo.Text).Pass("", MediaEntityBuilder.CreateScreenCaptureFromPath(screenshotAttachment).Build());
+            else if (stepType == "And")
+                scenario.CreateNode<And>(stepType + ": " + scenarioContext.StepContext.StepInfo.Text).Pass("", MediaEntityBuilder.CreateScreenCaptureFromPath(screenshotAttachment).Build());
+        }
+        private void TestStepFailed(string stepType, string screenshotAttachment)
+        {
+            stepStatus = "FAILED";
+            string stepInfo = scenarioContext.StepContext.StepInfo.Text;
+            if (stepType == "Given")
+            {
+                scenario.CreateNode<Given>(stepType + ": " + stepInfo).Fail(scenarioContext.TestError.Message).Fail("", MediaEntityBuilder.CreateScreenCaptureFromPath(screenshotAttachment).Build());
+            }
+            else if (stepType == "When")
+            {
+                scenario.CreateNode<When>(stepType + ": " + stepInfo).Fail(scenarioContext.TestError.Message).Fail("", MediaEntityBuilder.CreateScreenCaptureFromPath(screenshotAttachment).Build()); ;
+            }
+            else if (stepType == "Then")
+            {
+                scenario.CreateNode<Then>(stepType + ": " + stepInfo).Fail(scenarioContext.TestError.Message).Fail("", MediaEntityBuilder.CreateScreenCaptureFromPath(screenshotAttachment).Build()); ;
+            }
+            stepComment = scenarioContext.TestError.ToString();
+            scenario.Log(Status.Fail, stepComment);
+
+        }
+
+
+        [BeforeScenario]
+        [Obsolete]
+        public void Initialize(ScenarioContext scenariocontext,WebDriverManager desiredDriver)
+        {
+            scenario = featureName.CreateNode<Scenario>(scenariocontext.ScenarioInfo.Title);        
+           
+        }
+
+        [AfterScenario]
+        public void CleanUp()
+        {
+            // _driver.Quit();
+        }
+    }
+}

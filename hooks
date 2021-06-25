@@ -40,14 +40,13 @@ namespace EvaluatePlusTest.Hooks
         public static void InitializeReport()
         {
             FsoHelper fUtil = new FsoHelper();
-            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory.Replace($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}Debug{Path.DirectorySeparatorChar}netcoreapp2.2", "");
             string reportPath = fUtil.GetHtmlReportPath() + $"\\ExtentReport.html";
             var htmlReporter = new ExtentV3HtmlReporter(reportPath);
             htmlReporter.Config.Theme = AventStack.ExtentReports.Reporter.Configuration.Theme.Dark;
       
 
             //Set Document Title
-            htmlReporter.Config.DocumentTitle = "Evaluate Plus";
+            htmlReporter.Config.DocumentTitle = "XXXX  DDD";
             htmlReporter.Config.ReportName = "Automation Test Report";
             //Attach report to reporter
             extent = new AventStack.ExtentReports.ExtentReports();
